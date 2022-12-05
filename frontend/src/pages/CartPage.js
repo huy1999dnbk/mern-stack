@@ -1,6 +1,7 @@
 import { Row, Col, Container, Alert, ListGroup, Button } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import CartItemComponent from "../components/CartItemComponent";
+
 const CartPage = () => {
   return (
     <Container fluid>
@@ -23,7 +24,7 @@ const CartPage = () => {
               Price: <span className="fw-bold">$892 </span>
             </ListGroup.Item>
             <ListGroup.Item>
-              <LinkContainer to="/user/order-details">
+              <LinkContainer to="/user/cart-details">
                 <Button type="button">Proceed to checkout</Button>
               </LinkContainer>
             </ListGroup.Item>

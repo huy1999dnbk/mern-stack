@@ -63,7 +63,7 @@ function App() {
 
         {/* admin protected routes*/}
         <Route element={<ProtectedRoutesComponent admin={true} />}>
-          <Route path="/admin/user" element={<AdminUsersPage />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/edit-user" element={<AdminEditUserPage />} />
           <Route path="/admin/products" element={<AdminProductsPage />} />
           <Route
@@ -79,7 +79,7 @@ function App() {
             path="/admin/order-details"
             element={<AdminOrderDetailsPage />}
           />
-          <Route path="/admin/chat" element={<AdminChatsPage />} />
+          <Route path="/admin/chats" element={<AdminChatsPage />} />
           <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
         </Route>
       </Routes>
