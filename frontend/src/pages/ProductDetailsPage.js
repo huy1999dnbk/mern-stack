@@ -13,6 +13,7 @@ import { Rating } from "react-simple-star-rating";
 
 import ImageZoom from "js-image-zoom";
 import { useEffect } from "react";
+
 const ProductDetailsPage = () => {
   var options = {
     scale: 2,
