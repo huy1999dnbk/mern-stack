@@ -50,7 +50,7 @@ const productSchema = mongoose.Schema(
         },
       },
     ],
-    iamges: [imageSchema],
+    images: [imageSchema],
     reviews: [
       {
         type: mongoose.Schema.Types.ObjectId,
