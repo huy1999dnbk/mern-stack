@@ -6,6 +6,7 @@ import CategoryFilterComponent from "../components/filterQueryResultOptions/Cate
 import AttributesFilterComponent from "../components/filterQueryResultOptions/AttributesFilterComponent";
 import ProductForListComponent from "../components/ProductForListComponent";
 import PaginationComponent from "../components/PaginationComponent";
+import axios from "axios";
 const ProductListPage = () => {
   return (
     <Container fluid>
@@ -30,6 +31,7 @@ const ProductListPage = () => {
             </ListGroup.Item>
             <ListGroup.Item>
               <Button variant="primary">Filter</Button>
+              {"  "}
               <Button variant="danger">Reset filters</Button>
             </ListGroup.Item>
           </ListGroup>
