@@ -3,7 +3,6 @@ import {
   Row,
   Col,
   Form,
-  InputGroup,
   Button,
   Spinner,
   Alert,
@@ -21,8 +20,6 @@ const LoginPageComponent = ({
     error: "",
     loading: false,
   });
-
-  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -47,9 +44,9 @@ const LoginPageComponent = ({
           }
 
           if (res.success === "user logged in" && !res.userLoggedIn.isAdmin) {
-            navigate("/user", { replace: true });
+            window.location.href = "/user";
           } else {
-            navigate("/admin/orders", { replace: true });
+            window.location.href = "/admin/orders";
           }
         })
         .catch((er) =>
