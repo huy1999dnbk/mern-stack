@@ -22,65 +22,68 @@ const ProductsPageComponent = ({ fetchProducts, deleteProduct }) => {
   };
 
   useEffect(() => {
-    const abctrl = new AbortController();
-    fetchProducts(abctrl)
+    fetchProducts()
       .then((res) => setProducts(res))
-      .catch((er) => dispatch(logout()));
-    return () => abctrl.abort();
+      .catch((er) => {
+        console.log("product 1");
+        dispatch(logout());
+      });
   }, [productDeleted]);
 
   return (
-    <Row className="m-5">
-      <Col md={2}>
-        <AdminLinksComponent />
-      </Col>
-      <Col md={10}>
-        <h1>
-          Product List{" "}
-          <LinkContainer to="/admin/create-new-product">
-            <Button variant="primary" size="lg">
-              Create new
-            </Button>
-          </LinkContainer>
-        </h1>
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Product Name</th>
-              <th>Price</th>
-              <th>Category</th>
-              <th>Edit/Delete</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((item, idx) => (
-              <tr key={idx}>
-                <td>{idx + 1}</td>
-                <td>{item.name}</td>
-                <td>{item.price}</td>
-                <td>{item.category}</td>
-                <td>
-                  <LinkContainer to={`/admin/edit-product/${item._id}`}>
-                    <Button className="btn-sm">
-                      <i className="bi bi-pencil-square"></i>
-                    </Button>
-                  </LinkContainer>
-                  {" / "}
-                  <Button
-                    variant="danger"
-                    className="btn-sm"
-                    onClick={() => deleteHandler(item._id)}
-                  >
-                    <i className="bi bi-x-circle"></i>
-                  </Button>
-                </td>
+    products && (
+      <Row className="m-5">
+        <Col md={2}>
+          <AdminLinksComponent />
+        </Col>
+        <Col md={10}>
+          <h1>
+            Product List{" "}
+            <LinkContainer to="/admin/create-new-product">
+              <Button variant="primary" size="lg">
+                Create new
+              </Button>
+            </LinkContainer>
+          </h1>
+          <Table striped bordered hover responsive>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Category</th>
+                <th>Edit/Delete</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
-      </Col>
-    </Row>
+            </thead>
+            <tbody>
+              {products.map((item, idx) => (
+                <tr key={idx}>
+                  <td>{idx + 1}</td>
+                  <td>{item.name}</td>
+                  <td>{item.price}</td>
+                  <td>{item.category}</td>
+                  <td>
+                    <LinkContainer to={`/admin/edit-product/${item._id}`}>
+                      <Button className="btn-sm">
+                        <i className="bi bi-pencil-square"></i>
+                      </Button>
+                    </LinkContainer>
+                    {" / "}
+                    <Button
+                      variant="danger"
+                      className="btn-sm"
+                      onClick={() => deleteHandler(item._id)}
+                    >
+                      <i className="bi bi-x-circle"></i>
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Col>
+      </Row>
+    )
   );
 };
 

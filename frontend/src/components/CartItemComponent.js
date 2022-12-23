@@ -1,6 +1,11 @@
 import { Button, Col, Form, Image, ListGroup, Row } from "react-bootstrap";
-
-const CartItemComponent = ({ item, orderCreated = false }) => {
+import RemoveFromCartComponent from "./RemoveFromCartComponent";
+const CartItemComponent = ({
+  item,
+  removeFromCartHandler = false,
+  orderCreated = false,
+  changeCount = false,
+}) => {
   return (
     <>
       <ListGroup.Item>
@@ -18,9 +23,13 @@ const CartItemComponent = ({ item, orderCreated = false }) => {
           </Col>
           <Col md={3}>
             <Form.Select
-              onChange={() => {}}
               disabled={orderCreated}
               value={item.quantity}
+              onChange={
+                changeCount
+                  ? (e) => changeCount(item.productId, e.target.value)
+                  : undefined
+              }
             >
               {[...Array(item.count).keys()].map((x) => (
                 <option key={x + 1} value={x + 1}>
@@ -30,13 +39,15 @@ const CartItemComponent = ({ item, orderCreated = false }) => {
             </Form.Select>
           </Col>
           <Col md={3}>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => window.confirm("Are you sure?")}
-            >
-              <i className="bi bi-trash" />
-            </Button>
+            <RemoveFromCartComponent
+              orderCreated={orderCreated}
+              productId={item.productId}
+              quantity={item.quantity}
+              price={item.price}
+              removeFromCartHandler={
+                removeFromCartHandler ? removeFromCartHandler : undefined
+              }
+            />
           </Col>
         </Row>
       </ListGroup.Item>
