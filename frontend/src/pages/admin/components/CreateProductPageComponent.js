@@ -9,8 +9,13 @@ import {
   Alert,
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Fragment, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  changeCategory,
+  setValuesForAttrFromDbSelectFrom,
+  setAttributesTableWrapper,
+} from "./utils/utils";
 const CreateProductPageComponent = ({
   createProductApiRequest,
   uploadImagesApiRequest,
@@ -18,10 +23,13 @@ const CreateProductPageComponent = ({
   categories,
   reduxDispatch,
   newCategory,
+  deleteCategory,
+  saveAttributeToCatDoc,
 }) => {
   const navigate = useNavigate();
   const [validated, setValidated] = useState(false);
   const [attributesTable, setAttributesTable] = useState([]);
+  const [attributesFromDb, setAttributesFromDb] = useState([]);
   const [images, setImages] = useState(false);
   const [isCreating, setIsCreating] = useState("");
   const [createProductResponseState, setCreateProductResponseState] = useState({
@@ -29,6 +37,14 @@ const CreateProductPageComponent = ({
     error: "",
   });
   const [categoryChoosen, setCategoryChoosen] = useState("Choose category");
+
+  const [newAttrKey, setNewAttrKey] = useState(false);
+  const [newAttrValue, setNewAttrValue] = useState(false);
+
+  const attrVal = useRef(null);
+  const attrKey = useRef(null);
+  const createNewAttrKey = useRef(null);
+  const createNewAttrVal = useRef(null);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -87,10 +103,65 @@ const CreateProductPageComponent = ({
       reduxDispatch(newCategory(e.target.value));
       setTimeout(() => {
         let element = document.getElementById("cats");
-        element.value = e.target.value;
         setCategoryChoosen(e.target.value);
+        element.value = e.target.value;
         e.target.value = "";
       }, 200);
+    }
+  };
+
+  const deleteCategoryHandler = () => {
+    let element = document.getElementById("cats");
+    reduxDispatch(deleteCategory(element.value));
+    setCategoryChoosen("Choose category");
+  };
+
+  const attributeValueSelected = (e) => {
+    if (e.target.value !== "Choose attribute value") {
+      setAttributesTableWrapper(
+        attrKey.current.value,
+        e.target.value,
+        setAttributesTable
+      );
+    }
+  };
+
+  const deleteAttribute = (key) => {
+    setAttributesTable((table) => table.filter((item) => item.key !== key));
+  };
+
+  const newAttrKeyHandler = (e) => {
+    e.preventDefault();
+    setNewAttrKey(e.target.value);
+    addNewAttributeManually(e);
+  };
+
+  const newAttrValueHandler = (e) => {
+    e.preventDefault();
+    setNewAttrValue(e.target.value);
+    addNewAttributeManually(e);
+  };
+
+  const addNewAttributeManually = (e) => {
+    if (e.keyCode && e.keyCode === 13) {
+      if (newAttrKey && newAttrValue) {
+        console.log(1);
+        reduxDispatch(
+          saveAttributeToCatDoc(newAttrKey, newAttrValue, categoryChoosen)
+        );
+        setAttributesTableWrapper(newAttrKey, newAttrValue, setAttributesTable);
+        e.target.value = "";
+        createNewAttrKey.current.value = "";
+        createNewAttrVal.current.value = "";
+        setNewAttrKey(false);
+        setNewAttrValue(false);
+      }
+    }
+  };
+
+  const checkKeyDown = (e) => {
+    if (e.code === "Enter") {
+      e.preventDefault();
     }
   };
 
@@ -104,7 +175,12 @@ const CreateProductPageComponent = ({
         </Col>
         <Col md={6}>
           <h1>Create a new product</h1>
-          <Form noValidate validated={validated} onSubmit={handleSubmit}>
+          <Form
+            noValidate
+            validated={validated}
+            onSubmit={handleSubmit}
+            onKeyDown={checkKeyDown}
+          >
             <Form.Group className="mb-3" controlId="formBasicName">
               <Form.Label>Name</Form.Label>
               <Form.Control name="name" required type="text" />
@@ -132,15 +208,24 @@ const CreateProductPageComponent = ({
             <Form.Group className="mb-3" controlId="formBasicCategory">
               <Form.Label>
                 Category
-                <CloseButton />(<small>remove selected</small>)
+                <CloseButton onClick={deleteCategoryHandler} />(
+                <small>remove selected</small>)
               </Form.Label>
               <Form.Select
                 id="cats"
                 required
                 name="category"
                 aria-label="Default select example"
+                onChange={(e) =>
+                  changeCategory(
+                    e,
+                    categories,
+                    setAttributesFromDb,
+                    setCategoryChoosen
+                  )
+                }
               >
-                <option value="Choose category">Choose category</option>
+                <option value="">Choose category</option>
                 {categories.map((category, idx) => (
                   <option key={idx} value={category.name}>
                     {category.name}
@@ -158,80 +243,113 @@ const CreateProductPageComponent = ({
                 type="text"
               ></Form.Control>
             </Form.Group>
-            <Row className="mt-5">
-              <Col md={6}>
-                <Form.Group className="mb-3" controlId="formBasicAttributes">
-                  <Form.Label>Choose attribute and set value</Form.Label>
-                  <Form.Select
-                    name="atrrKey"
-                    aria-label="Default Select Example"
-                  >
-                    <option>Choose Attribute</option>
-                    <option value="red">color</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3" controlId="formBasicAttributes">
-                  <Form.Label>Choose attribute and set value</Form.Label>
-                  <Form.Select
-                    name="atrrKey"
-                    aria-label="Default Select Example"
-                  >
-                    <option>Choose Attribute</option>
-                    <option value="red">color</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
+
+            {attributesFromDb.length > 0 && (
+              <Row className="mt-5">
+                <Col md={6}>
+                  <Form.Group className="mb-3" controlId="formBasicAttributes">
+                    <Form.Label>Choose attribute and set value</Form.Label>
+                    <Form.Select
+                      name="attrKey"
+                      aria-label="Default Select Example"
+                      ref={attrKey}
+                      onChange={(e) =>
+                        setValuesForAttrFromDbSelectFrom(
+                          e,
+                          attrVal,
+                          attributesFromDb
+                        )
+                      }
+                    >
+                      <option>Choose Attribute</option>
+                      {attributesFromDb.map((item, idx) => (
+                        <Fragment key={idx}>
+                          <option value={item.key}>{item.key}</option>
+                        </Fragment>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3" controlId="formBasicAttributes">
+                    <Form.Label>Choose attribute and set value</Form.Label>
+                    <Form.Select
+                      onChange={attributeValueSelected}
+                      name="attrVal"
+                      aria-label="Default Select Example"
+                      ref={attrVal}
+                    >
+                      <option>Choose Attribute value</option>
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+              </Row>
+            )}
+
+            <Row>
+              {attributesTable.length > 0 && (
+                <Table hover>
+                  <thead>
+                    <tr>
+                      <th>Attribute</th>
+                      <th>Value</th>
+                      <th>Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {attributesTable.map((item, idx) => (
+                      <tr key={idx}>
+                        <td>{item.key}</td>
+                        <td>{item.value}</td>
+                        <td>
+                          <CloseButton
+                            onClick={() => deleteAttribute(item.key)}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              )}
             </Row>
 
             <Row>
-              <Table hover>
-                <thead>
-                  <tr>
-                    <th>Attribute</th>
-                    <th>Value</th>
-                    <th>Delete</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>attr key</td>
-                    <td>attr value</td>
-                    <td>
-                      <CloseButton />
-                    </td>
-                  </tr>
-                </tbody>
-              </Table>
-            </Row>
-
-            <Row>
               <Col md={6}>
-                <Form.Group className="mb-3" controlId="formBasicNewAttribute">
+                <Form.Group
+                  className="mb-3"
+                  controlId="formBasicNewAttributeKey"
+                >
                   <Form.Label>Create new attribute</Form.Label>
                   <Form.Control
-                    disabled={categoryChoosen === "Choose category"}
+                    ref={createNewAttrKey}
+                    disabled={["", "Choose category"].includes(categoryChoosen)}
                     placeholder="first choose or create category"
-                    name="newAttrValue"
+                    name="newAttrKey"
                     type="text"
+                    onKeyUp={newAttrKeyHandler}
                   ></Form.Control>
                 </Form.Group>
               </Col>
               <Col md={6}>
-                <Form.Group className="mb-3" controlId="formBasicNewAttribute">
-                  <Form.Label>Create new attribute</Form.Label>
+                <Form.Group
+                  className="mb-3"
+                  controlId="formBasicNewAttributeValue"
+                >
+                  <Form.Label>Create new attribute value</Form.Label>
                   <Form.Control
-                    disabled={categoryChoosen === "Choose category"}
+                    ref={createNewAttrVal}
+                    disabled={["", "Choose category"].includes(categoryChoosen)}
                     placeholder="first choose or create category"
                     name="newAttrValue"
                     type="text"
+                    required={newAttrKey}
+                    onKeyUp={newAttrValueHandler}
                   ></Form.Control>
                 </Form.Group>
               </Col>
             </Row>
 
-            <Alert variant="primary">
+            <Alert show={newAttrKey && newAttrValue} variant="primary">
               After typing attribute key and value press enterr on one of the
               field
             </Alert>
