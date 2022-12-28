@@ -15,7 +15,6 @@ const updateUserApiRequest = async (userId, name, lastName, email, isAdmin) => {
 
   return data;
 };
-
 const AdminEditUserPage = () => {
   return (
     <EditUserPageComponent
